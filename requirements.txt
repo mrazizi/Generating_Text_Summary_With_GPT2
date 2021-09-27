@@ -1,6 +1,6 @@
 torch==1.7.1
 tqdm==4.28.1
-transformers==2.2.1
+transformers
 googlesearch-python
 bs4
 tensorflow
