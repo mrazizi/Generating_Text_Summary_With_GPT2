@@ -11,7 +11,7 @@ import torch
 from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-from tqdm import tnrange, tqdm_notebook
+from tqdm import tnrange, tqdm
 
 from dataset import GPT21024Dataset
 from utils import add_special_tokens, generate_sample, set_seed
@@ -40,10 +40,10 @@ def train(args, model, tokenizer, train_dataset, valid_dataset, ignore_index):
     train_iterator = tnrange(int(args.num_train_epochs), desc="Epoch")
     set_seed(args)
     for i, _ in enumerate(train_iterator):
-        print(f"[LOG] epoch {i}/{args.num_train_epochs}")
-        epoch_iterator = tqdm_notebook(train_dl, desc="Training")
+        #print(f"[LOG] epoch {i}/{args.num_train_epochs}")
+        epoch_iterator = tqdm(train_dl, desc="Training")
         for step, batch in enumerate(epoch_iterator):
-            print(f"[LOG] step {step}/{len(epoch_iterator)}")
+            #print(f"[LOG] step {step}/{len(epoch_iterator)}")
             batch_a = time.time()
             
             inputs, labels = batch['article'].to(args.device), batch['article'].to(args.device)
@@ -78,16 +78,20 @@ def train(args, model, tokenizer, train_dataset, valid_dataset, ignore_index):
                 print('After', global_step+1,'updates: ', end='\n\n')
                 generate_sample(valid_dataset, tokenizer, model, num=2, eval_step=True,device=args.device)
 
-                print(f"Saving trained model...")
-                model_directory_path = "/content/drive/MyDrive/MSC/My_Msc/Thesis/codes/gpt2_models"
-                model_file = f"{model_directory_path}/{i}_{step}_model.bin"
-                config_file = f"{model_directory_path}/{i}_{step}_config.json"
-                torch.save(model.state_dict(), model_file)
-                model.config.to_json_file(config_file)
-
 
             batch_b = time.time()
-            print(f"[LOG] batch {batch} took {batch_b - batch_a}")
+            #print(f"[LOG] batch {batch} took {batch_b - batch_a}")
+
+        try:
+            print('Saving trained model...')
+            model_directory_path = "gpt2_models/"
+            model_file = f"{model_directory_path}/{i}_model.bin"
+            config_file = f"{model_directory_path}/{i}_config.json"
+            torch.save(model.state_dict(), model_file)
+            model.config.to_json_file(config_file)
+        except:
+            pass
+
             
             
 def evaluate(args, model, eval_dataset, ignore_index, global_step=None):
@@ -112,7 +116,7 @@ def evaluate(args, model, eval_dataset, ignore_index, global_step=None):
     nb_eval_steps = 0
     model.eval()
 
-    for batch in tqdm_notebook(eval_dataloader, desc="Evaluating"):
+    for batch in tqdm(eval_dataloader, desc="Evaluating"):
         inputs, labels = batch['article'].to(args.device), batch['article'].to(args.device)
         
         with torch.no_grad():
@@ -152,7 +156,7 @@ if __name__ == "__main__":
   parser.add_argument("--batch_size",default=1, type=int,  help="batch_size")
   parser.add_argument("--num_workers",default=4, type=int,  help="num of cpus available")
   parser.add_argument("--device",default=torch.device('cuda'), help="torch.device object")
-  parser.add_argument("--num_train_epochs",default=1, type=int,  help="no of epochs of training")
+  parser.add_argument("--num_train_epochs",default=5, type=int,  help="no of epochs of training")
   parser.add_argument("--output_dir",default='./output', type=str,  help="path to save evaluation results")
   parser.add_argument("--model_dir",default='./weights', type=str,  help="path to save trained model")
   parser.add_argument("--max_grad_norm",default=1.0, type=float, help="max gradient norm.")
@@ -168,7 +172,7 @@ if __name__ == "__main__":
   # load pretrained GPT2
   tokenizer = add_special_tokens()
   ignore_idx = tokenizer.pad_token_id
-  model = GPT2LMHeadModel.from_pretrained('gpt2')
+  model = GPT2LMHeadModel.from_pretrained('/mnt/disk2T/mrazizi/huggingface_models/gpt2')
   model.resize_token_embeddings(len(tokenizer))
   model.to(args.device)
   
@@ -177,7 +181,7 @@ if __name__ == "__main__":
   train(args, model, tokenizer, train_data, valid_data, ignore_idx)
   print('total time: ', (time.time()-start)/60, " minutes", end='\n\n')
   print('Saving trained model...')
-  model_directory_path = "gpt2_models"
+  model_directory_path = "gpt2_models/"
   model_file = f"{model_directory_path}/final_model.bin"
   config_file = f"{model_directory_path}/final_config.json"
   torch.save(model.state_dict(), model_file)

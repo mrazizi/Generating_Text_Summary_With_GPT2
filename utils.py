@@ -8,7 +8,7 @@ from tqdm import tnrange
 
 def add_special_tokens():
 	""" Returns GPT2 tokenizer after adding separator and padding tokens """
-	tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+	tokenizer = GPT2Tokenizer.from_pretrained('/mnt/disk2T/mrazizi/huggingface_models/gpt2')
 	special_tokens = {'pad_token':'<|pad|>','sep_token':'<|sep|>'}
 	num_add_toks = tokenizer.add_special_tokens(special_tokens)
 	return tokenizer
@@ -148,22 +148,36 @@ def generate_sample(data, tokenizer, model, num=1, eval_step=False, length=100, 
             num = number of articles for which summaries has to be generated
             eval_step = can be True/False, checks generating during evaluation or not
     """
+    result = []
+
     for i in range(num):
         sample = data[i]
         idx = sample['sum_idx']
         context = sample['article'][:idx].tolist()
         summary = sample['article'][idx+1:][:100].tolist()
+        print(context)
+        print("))))))")
+        print(summary)
+        input()
         generated_text = sample_seq(model, context, length, device, temperature, top_k, top_p)
         generated_text = generated_text[0, len(context):].tolist()
         text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
         text = tokenizer.convert_tokens_to_string(text)
         if eval_step==False:
-            print('new_article', end='\n\n')
-            print(tokenizer.decode(context), end='\n\n')
-            print("generated_summary", end='\n\n')
-            print(text, end='\n\n')
-            print('actual_summary', end='\n\n')
-            print(tokenizer.decode(summary), end='\n\n')
+            #print('new_article', end='\n\n')
+            article_output = tokenizer.decode(context)
+            #print(article_output, end='\n\n')
+            #print("generated_summary", end='\n\n')
+            #print(text, end='\n\n')
+            generated_output = text
+            #print('actual_summary', end='\n\n')
+            reference_output = tokenizer.decode(summary) 
+            #print(reference_output, end='\n\n')
         else:
             print(tokenizer.decode(context), end='\n\n')
             print("generated_summary", end='\n\n')
+
+        this_result = [article_output, generated_output, reference_output]
+        result.append(this_result)
+
+    return result

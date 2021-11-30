@@ -7,3 +7,4 @@ output/logs/
 weights/config_data2_trained_after_1_epochs_only_sum_loss_ignr_pad.json
 weights/model_data2_trained_after_1_epochs_only_sum_loss_ignr_pad.bin
 venv/
+gpt2_models/
