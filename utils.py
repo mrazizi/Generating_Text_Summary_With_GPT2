@@ -8,7 +8,8 @@ from tqdm import tnrange
 
 def add_special_tokens():
 	""" Returns GPT2 tokenizer after adding separator and padding tokens """
-	tokenizer = GPT2Tokenizer.from_pretrained('/mnt/disk2T/mrazizi/huggingface_models/gpt2')
+	#tokenizer = GPT2Tokenizer.from_pretrained('/mnt/disk2T/mrazizi/huggingface_models/gpt2')
+	tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 	special_tokens = {'pad_token':'<|pad|>','sep_token':'<|sep|>'}
 	num_add_toks = tokenizer.add_special_tokens(special_tokens)
 	return tokenizer

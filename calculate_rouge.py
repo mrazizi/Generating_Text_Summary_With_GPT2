@@ -1,4 +1,3 @@
-from datasets import load_dataset
 from tqdm import tqdm
 from pprint import pprint
 from rouge import Rouge
@@ -76,6 +75,7 @@ def load_model():
 
 
 def hugging_face_decode(model, tokenizer):
+	from datasets import load_dataset
 
 	dataset = load_dataset("cnn_dailymail", "3.0.0", split="test")
 
@@ -110,6 +110,12 @@ def hugging_face_decode(model, tokenizer):
 
 
 
+def small_test_decode(model, tokenizer):
+  test_data = GPT21024Dataset("./CNN/gpt2_1024_data", "./CNN/ids.json", mode='test', length=500)
+  print(f"[LOG] Loaded test dataset, #articles: {len(test_data)}")
+
+
+
 if __name__ == "__main__":
 	model, tokenizer = load_model()
-	hugging_face_decode(model, tokenizer)
+	small_test_decode(model, tokenizer)
