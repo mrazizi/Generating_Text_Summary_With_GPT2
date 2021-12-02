@@ -88,29 +88,32 @@ def hugging_face_decode(model, tokenizer):
 		article_path = f"article/{data_id}"
 
 
-		try:
-      # generate summary
-			article = tokenizer.encode(article)
-			generated_text = sample_seq(model, article, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
-			generated_text = generated_text[0, len(article):].tolist()
-			text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
-			text = tokenizer.convert_tokens_to_string(text)
+		# try:
+    # generate summary
+		article_encoded = tokenizer.encode(article)[:900]
+		generated_text = sample_seq(model, article_encoded, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
+		generated_text = generated_text[0, len(article_encoded):].tolist()
+		text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
+		text = tokenizer.convert_tokens_to_string(text)
 
 
-			# save article
-			with open(article_path, "w") as f:
-				f.write(article)
+		# save article
+		with open(article_path, "w") as f:
+			print(article)
+			f.write(article)
 
-			# save reference_summary
-			with open(reference_summary_path, "w") as f:
-				f.write(highlight)
+		# save reference_summary
+		with open(reference_summary_path, "w") as f:
+			f.write(highlight)
 
-			# save generated summary
-			with open(generated_summary_path, "w") as f:
-				f.write(text)
+		# save generated summary
+		with open(generated_summary_path, "w") as f:
+			f.write(text)
 
-		except:
-			print(f"[ERROR] on {article_path}")
+		# except Exception as e:
+		# 	print(f"[ERROR] on {article_path}")
+		# 	print(e)
+		# 	input()
 
 
 
