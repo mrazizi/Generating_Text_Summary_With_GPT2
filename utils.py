@@ -68,6 +68,7 @@ def sample_seq(model, context, length, device, temperature=1, top_k=0, top_p=0.0
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0)
     generated = context
+    
     with torch.no_grad():  
         for _ in tnrange(length):
             inputs = {'input_ids': generated}

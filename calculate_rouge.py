@@ -22,7 +22,7 @@ def load_model():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--seed",default=42, type=int,  help="seed to replicate results")
 	parser.add_argument("--num_workers",default=4, type=int,  help="num of cpus available")
-	parser.add_argument("--device",default=torch.device('cpu'), help="torch.device object")
+	parser.add_argument("--device",default=torch.device('cuda'), help="torch.device object")
 	parser.add_argument("--output_dir",default='./output', type=str,  help="path to save evaluation results")
 	parser.add_argument("--model_dir",default='./weights', type=str,  help="path to save trained model")
 	parser.add_argument("--root_dir",default='./CNN/gpt2_1024_data', type=str, help="location of json dataset.")
@@ -98,11 +98,14 @@ def hugging_face_decode(model, tokenizer):
 			f.write(highlight)
 
 		# generate summary
-		article = tokenizer.encode(article)
-		generated_text = sample_seq(model, article, 50, torch.device('cpu'), temperature=1, top_k=10, top_p=0.5)
-		generated_text = generated_text[0, len(article):].tolist()
-		text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
-		text = tokenizer.convert_tokens_to_string(text)
+    try:
+      article = tokenizer.encode(article)
+      generated_text = sample_seq(model, article, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
+      generated_text = generated_text[0, len(article):].tolist()
+      text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
+      text = tokenizer.convert_tokens_to_string(text)
+    except:
+      print(f"[ERROR] on {article_path}")
 
 		# save generated summary
 		with open(generated_summary_path, "w") as f:
@@ -118,4 +121,4 @@ def small_test_decode(model, tokenizer):
 
 if __name__ == "__main__":
 	model, tokenizer = load_model()
-	small_test_decode(model, tokenizer)
+	hugging_face_decode(model, tokenizer)
