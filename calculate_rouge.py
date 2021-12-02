@@ -80,8 +80,6 @@ def hugging_face_decode(model, tokenizer):
 	dataset = load_dataset("cnn_dailymail", "3.0.0", split="test")
 
 	for data in tqdm(dataset):
-		print("\n\n")
-		print(data)
 		article = data["article"]
 		highlight = data["highlights"]
 		data_id = data["id"]
@@ -98,14 +96,14 @@ def hugging_face_decode(model, tokenizer):
 			f.write(highlight)
 
 		# generate summary
-    try:
-      article = tokenizer.encode(article)
-      generated_text = sample_seq(model, article, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
-      generated_text = generated_text[0, len(article):].tolist()
-      text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
-      text = tokenizer.convert_tokens_to_string(text)
-    except:
-      print(f"[ERROR] on {article_path}")
+		try:
+			article = tokenizer.encode(article)
+			generated_text = sample_seq(model, article, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
+			generated_text = generated_text[0, len(article):].tolist()
+			text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
+			text = tokenizer.convert_tokens_to_string(text)
+		except:
+			print(f"[ERROR] on {article_path}")
 
 		# save generated summary
 		with open(generated_summary_path, "w") as f:
