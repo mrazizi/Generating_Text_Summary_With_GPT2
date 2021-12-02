@@ -87,27 +87,32 @@ def hugging_face_decode(model, tokenizer):
 		reference_summary_path = f"reference_summaries/{data_id}"
 		article_path = f"article/{data_id}"
 
-		# save article
-		with open(article_path, "w") as f:
-			f.write(article)
 
-		# save reference_summary
-		with open(reference_summary_path, "w") as f:
-			f.write(highlight)
-
-		# generate summary
 		try:
+      # generate summary
 			article = tokenizer.encode(article)
 			generated_text = sample_seq(model, article, 50, torch.device('cuda'), temperature=1, top_k=10, top_p=0.5)
 			generated_text = generated_text[0, len(article):].tolist()
 			text = tokenizer.convert_ids_to_tokens(generated_text,skip_special_tokens=True)
 			text = tokenizer.convert_tokens_to_string(text)
+
+
+			# save article
+			with open(article_path, "w") as f:
+				f.write(article)
+
+			# save reference_summary
+			with open(reference_summary_path, "w") as f:
+				f.write(highlight)
+
+			# save generated summary
+			with open(generated_summary_path, "w") as f:
+				f.write(text)
+
 		except:
 			print(f"[ERROR] on {article_path}")
 
-		# save generated summary
-		with open(generated_summary_path, "w") as f:
-			f.write(text)
+
 
 
 
